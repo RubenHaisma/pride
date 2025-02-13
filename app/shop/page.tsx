@@ -1,106 +1,126 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Grid } from '@/components/grid';
 import { ProductCard } from '@/components/product-card';
-
-const products = [
-  {
-    id: '1',
-    title: "Pride 2025 Rainbow Tee",
-    price: "€29.99",
-    image: "https://images.unsplash.com/photo-1618354691792-d1d42acfd860",
-    description: "Limited edition Pride 2025 t-shirt featuring our signature rainbow design.",
-    isNewArrival: true
-  },
-  {
-    id: '2',
-    title: "Unity Collection Hoodie",
-    price: "€59.99",
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7",
-    description: "Comfortable and stylish hoodie celebrating unity and diversity.",
-    isNewArrival: true
-  },
-  {
-    id: '3',
-    title: "Pride Flag",
-    price: "€24.99",
-    image: "https://images.unsplash.com/photo-1561612217-e5147162fd31",
-    description: "High-quality pride flag perfect for celebrations and showing your support.",
-    isNewArrival: false
-  },
-  {
-    id: '4',
-    title: "Love Wins Tank Top",
-    price: "€24.99",
-    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c",
-    description: "Sleeveless tank top with our iconic Love Wins design.",
-    isNewArrival: false
-  },
-  {
-    id: '5',
-    title: "Rainbow Socks",
-    price: "€12.99",
-    image: "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82",
-    description: "Colorful pride socks made from premium cotton blend.",
-    isNewArrival: false
-  },
-  {
-    id: '6',
-    title: "Pride 2025 Cap",
-    price: "€19.99",
-    image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b",
-    description: "Adjustable cap featuring the Pride 2025 logo.",
-    isNewArrival: true
-  }
-];
+import { getProducts } from '@/lib/shopify';
+import { Product } from '@/lib/shopify/types';
+import { useEffect, useState } from 'react';
+import { Loader2, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function ShopPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('featured');
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const data = await getProducts({
+          sortKey: sortBy.toUpperCase(),
+          reverse: false,
+          query: searchQuery
+        });
+        setProducts(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading products:', err);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProducts();
+  }, [searchQuery, sortBy]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Search is handled by the useEffect
+  };
+
   return (
     <div className="min-h-screen pt-16">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl font-bold mb-4">Shop Pride 2025</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Discover our exclusive collection of Pride merchandise. Every purchase supports LGBTQ+ organizations.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <ProductCard product={{
-              id: '',
-              handle: '',
-              availableForSale: false,
-              title: '',
-              description: '',
-              descriptionHtml: '',
-              options: [],
-              priceRange: {
-                maxVariantPrice: {
-                  amount: '',
-                  currencyCode: ''
-                },
-                minVariantPrice: {
-                  amount: '',
-                  currencyCode: ''
-                }
-              },
-              variants: [],
-              images: [],
-              seo: {
-                title: '',
-                description: ''
-              },
-              tags: [],
-              updatedAt: ''
-            }} key={product.id} {...product} />
-          ))}
+      {/* Hero Section */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 pride-gradient opacity-10"></div>
+        <div className="relative container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <h1 className="text-5xl font-bold mb-6 pride-text">Pride Shop</h1>
+            <p className="text-xl text-muted-foreground">
+              Discover our exclusive collection of Pride merchandise and show your support.
+            </p>
+          </motion.div>
         </div>
-      </div>
+      </section>
+
+      {/* Filters Section */}
+      <section className="py-8 bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <form onSubmit={handleSearch} className="w-full md:w-auto flex-1 max-w-sm">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  type="search"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </form>
+            <div className="flex items-center gap-4">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="featured">Featured</SelectItem>
+                  <SelectItem value="title">Name</SelectItem>
+                  <SelectItem value="price">Price</SelectItem>
+                  <SelectItem value="best-selling">Best Selling</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Products Grid */}
+      <section className="py-12">
+        <div className="container mx-auto px-4">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-destructive">{error}</p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-muted-foreground">No products found.</p>
+            </div>
+          ) : (
+            <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </Grid>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

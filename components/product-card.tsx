@@ -23,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
         whileHover={{ y: -5 }}
         className="h-full list-none"
       >
-        <div className="group relative h-full rounded-lg border bg-card p-4 transition-all hover:border-primary">
+        <div className="group relative h-full rounded-xl border bg-card p-6 transition-all hover:border-primary shadow-lg hover:shadow-xl">
           <div className="aspect-square overflow-hidden rounded-lg bg-muted">
             {images[0] && (
               <img
@@ -33,12 +33,12 @@ export function ProductCard({ product }: { product: Product }) {
               />
             )}
           </div>
-          <div className="mt-4 space-y-2">
-            <h3 className="line-clamp-1 text-lg font-semibold">{title}</h3>
+          <div className="mt-6 space-y-2">
+            <h3 className="line-clamp-1 text-xl font-semibold group-hover:pride-text">{title}</h3>
             <p className="line-clamp-2 text-sm text-muted-foreground">{description}</p>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pt-2">
               <p className="text-lg font-bold">{price}</p>
-              <Button size="icon" variant="ghost">
+              <Button size="icon" variant="ghost" className="group-hover:bg-primary group-hover:text-primary-foreground">
                 <ShoppingCart className="h-5 w-5" />
               </Button>
             </div>

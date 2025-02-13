@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { GeistSans } from 'geist/font/sans';
 import { Analytics } from '@/components/analytics';
 import { ThemeProvider } from '@/components/theme-provider';
+import { CartProvider } from '@/context/cart-context';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/sonner';
@@ -25,13 +26,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
         <ThemeProvider>
-          <Header />
-          <Suspense>
-            <main>{children}</main>
-          </Suspense>
-          <Footer />
-          <Toaster />
-          <Analytics />
+          <CartProvider>
+            <Header />
+            <Suspense>
+              <main>{children}</main>
+            </Suspense>
+            <Footer />
+            <Toaster />
+            <Analytics />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>
