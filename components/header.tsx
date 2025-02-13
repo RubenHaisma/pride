@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, ShoppingCart, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CartSheet } from '@/components/cart-sheet';
+import Link from 'next/link';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +12,7 @@ export function Header() {
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    const previous = scrollY.getPrevious();
+    const previous = scrollY.getPrevious() ?? 0;
     if (latest > previous && latest > 150) {
       setHidden(true);
     } else {
@@ -28,28 +28,29 @@ export function Header() {
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
-      className="fixed w-full z-50 bg-background/80 backdrop-blur-md border-b"
+      className="fixed left-0 right-0 top-0 z-50 border-b bg-background/80 backdrop-blur-md"
     >
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex-1 flex items-center justify-start">
+      <div className="mx-auto max-w-screen-2xl px-6 md:px-8">
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center">
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
-            <a href="/" className="text-2xl font-bold">
+            <Link href="/" className="text-2xl font-bold">
               Pride 2025
-            </a>
+            </Link>
           </div>
 
-          <nav className="hidden md:flex items-center gap-6">
-            <a href="/shop" className="text-sm font-medium hover:text-primary">Shop</a>
-            <a href="/about" className="text-sm font-medium hover:text-primary">About</a>
-            <a href="/community" className="text-sm font-medium hover:text-primary">Community</a>
-            <a href="/contact" className="text-sm font-medium hover:text-primary">Contact</a>
+          <nav className="hidden items-center gap-6 md:flex">
+            <Link href="/products" className="text-sm font-medium hover:text-primary">Shop</Link>
+            <Link href="/about" className="text-sm font-medium hover:text-primary">About</Link>
+            <Link href="/contact" className="text-sm font-medium hover:text-primary">Contact</Link>
           </nav>
 
-          <div className="flex-1 flex items-center justify-end">
-            <CartSheet />
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon">
+              <ShoppingCart className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>
@@ -62,13 +63,12 @@ export function Header() {
           open: { height: "auto", opacity: 1 },
           closed: { height: 0, opacity: 0 }
         }}
-        className="md:hidden overflow-hidden bg-background border-t"
+        className="overflow-hidden border-t bg-background md:hidden"
       >
-        <div className="px-4 py-2 space-y-1">
-          <a href="/shop" className="block px-3 py-2 text-base font-medium hover:text-primary">Shop</a>
-          <a href="/about" className="block px-3 py-2 text-base font-medium hover:text-primary">About</a>
-          <a href="/community" className="block px-3 py-2 text-base font-medium hover:text-primary">Community</a>
-          <a href="/contact" className="block px-3 py-2 text-base font-medium hover:text-primary">Contact</a>
+        <div className="space-y-1 p-4">
+          <Link href="/products" className="block rounded-lg px-3 py-2 text-base font-medium hover:bg-muted">Shop</Link>
+          <Link href="/about" className="block rounded-lg px-3 py-2 text-base font-medium hover:bg-muted">About</Link>
+          <Link href="/contact" className="block rounded-lg px-3 py-2 text-base font-medium hover:bg-muted">Contact</Link>
         </div>
       </motion.div>
     </motion.header>

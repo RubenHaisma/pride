@@ -1,8 +1,10 @@
+import Link from 'next/link';
+
 export function Footer() {
   return (
-    <footer className="bg-background border-t">
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="border-t bg-background">
+      <div className="mx-auto max-w-screen-2xl px-6 py-12 md:px-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="space-y-4">
             <h3 className="text-lg font-bold">Pride 2025</h3>
             <p className="text-sm text-muted-foreground">
@@ -11,35 +13,35 @@ export function Footer() {
           </div>
           
           <div>
-            <h4 className="text-sm font-semibold mb-4">Shop</h4>
+            <h4 className="mb-4 text-sm font-semibold">Shop</h4>
             <ul className="space-y-2">
-              <li><a href="/shop" className="text-sm text-muted-foreground hover:text-primary">All Products</a></li>
-              <li><a href="/new" className="text-sm text-muted-foreground hover:text-primary">New Arrivals</a></li>
-              <li><a href="/bestsellers" className="text-sm text-muted-foreground hover:text-primary">Bestsellers</a></li>
+              <li><Link href="/products" className="text-sm text-muted-foreground hover:text-primary">All Products</Link></li>
+              <li><Link href="/products/new" className="text-sm text-muted-foreground hover:text-primary">New Arrivals</Link></li>
+              <li><Link href="/products/featured" className="text-sm text-muted-foreground hover:text-primary">Featured</Link></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="text-sm font-semibold mb-4">About</h4>
+            <h4 className="mb-4 text-sm font-semibold">About</h4>
             <ul className="space-y-2">
-              <li><a href="/about" className="text-sm text-muted-foreground hover:text-primary">Our Story</a></li>
-              <li><a href="/community" className="text-sm text-muted-foreground hover:text-primary">Community</a></li>
-              <li><a href="/contact" className="text-sm text-muted-foreground hover:text-primary">Contact</a></li>
+              <li><Link href="/about" className="text-sm text-muted-foreground hover:text-primary">Our Story</Link></li>
+              <li><Link href="/impact" className="text-sm text-muted-foreground hover:text-primary">Our Impact</Link></li>
+              <li><Link href="/contact" className="text-sm text-muted-foreground hover:text-primary">Contact</Link></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="text-sm font-semibold mb-4">Legal</h4>
+            <h4 className="mb-4 text-sm font-semibold">Legal</h4>
             <ul className="space-y-2">
-              <li><a href="/privacy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</a></li>
-              <li><a href="/terms" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</a></li>
-              <li><a href="/shipping" className="text-sm text-muted-foreground hover:text-primary">Shipping Info</a></li>
+              <li><Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</Link></li>
+              <li><Link href="/shipping" className="text-sm text-muted-foreground hover:text-primary">Shipping Info</Link></li>
             </ul>
           </div>
         </div>
         
-        <div className="mt-8 pt-8 border-t">
-          <p className="text-sm text-muted-foreground text-center">
+        <div className="mt-8 border-t pt-8">
+          <p className="text-center text-sm text-muted-foreground">
             © 2025 Pride Amsterdam. All rights reserved.
           </p>
         </div>
