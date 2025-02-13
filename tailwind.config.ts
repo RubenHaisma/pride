@@ -17,10 +17,13 @@ const config: Config = {
       },
     },
     extend: {
-      fontFamily: {
-        sans: ['var(--font-geist-sans)'],
-      },
       colors: {
+        'pride-red': '#FF1B6B',
+        'pride-orange': '#FF8E25',
+        'pride-yellow': '#FFC107',
+        'pride-green': '#45D9A1',
+        'pride-blue': '#2196F3',
+        'pride-purple': '#D434FE',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -54,6 +57,10 @@ const config: Config = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
       borderRadius: {
         lg: 'var(--radius)',
