@@ -5,16 +5,17 @@ import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { formatMoney } from '@/lib/shopify/utils';
 
 export function ProductCard({ product }: { product: Product }) {
   const { handle, title, description, priceRange, images } = product;
-  const price = new Intl.NumberFormat('nl-NL', {
-    style: 'currency',
-    currency: priceRange.minVariantPrice.currencyCode,
-  }).format(parseFloat(priceRange.minVariantPrice.amount));
+  const price = formatMoney(
+    priceRange.minVariantPrice.amount,
+    priceRange.minVariantPrice.currencyCode
+  );
 
   return (
-    <Link href={`/products/${handle}`}>
+    <Link href={`/shop/${handle}`}>
       <motion.li
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

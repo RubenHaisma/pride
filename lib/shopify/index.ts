@@ -1,10 +1,19 @@
 import { env } from '@/lib/env';
 import { getProductsQuery } from './queries/product';
 import { Product, ShopifyProduct } from './types';
+import { removeEdgesAndNodes, reshapeProduct } from './utils';
 
-const SHOPIFY_GRAPHQL_API_ENDPOINT = '/api/2024-01/graphql.json';
+const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+const storefrontToken = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN as string;
+const apiVersion = process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_API_VERSION || '2024-01';
 
-export async function shopifyFetch<T>({
+if (!domain || !storefrontToken) {
+  throw new Error('Missing Shopify environment variables');
+}
+
+const endpoint = `https://${domain}/api/${apiVersion}/graphql.json`;
+
+async function shopifyFetch<T>({
   query,
   variables,
   headers,
@@ -16,14 +25,11 @@ export async function shopifyFetch<T>({
   cache?: RequestCache;
 }): Promise<{ status: number; body: T } | never> {
   try {
-    const endpoint = `https://${env.SHOPIFY_STORE_DOMAIN}${SHOPIFY_GRAPHQL_API_ENDPOINT}`;
-    const key = env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-
     const result = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': key,
+        'X-Shopify-Storefront-Access-Token': storefrontToken,
         ...headers
       },
       body: JSON.stringify({
@@ -37,7 +43,7 @@ export async function shopifyFetch<T>({
     const body = await result.json();
 
     if (body.errors) {
-      throw body.errors[0];
+      throw new Error(body.errors[0].message);
     }
 
     return {
@@ -45,10 +51,8 @@ export async function shopifyFetch<T>({
       body
     };
   } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message);
-    }
-    throw new Error('An error occurred while fetching from Shopify');
+    console.error('Shopify fetch error:', error);
+    throw error;
   }
 }
 
@@ -87,10 +91,88 @@ export async function getProducts({
   }
 }
 
+export async function getProduct(handle: string): Promise<Product | null> {
+  try {
+    const { body } = await shopifyFetch<{
+      data: {
+        product: ShopifyProduct;
+      };
+    }>({
+      query: `
+        query getProduct($handle: String!) {
+          product(handle: $handle) {
+            id
+            handle
+            availableForSale
+            title
+            description
+            descriptionHtml
+            options {
+              id
+              name
+              values
+            }
+            priceRange {
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            variants(first: 250) {
+              edges {
+                node {
+                  id
+                  title
+                  availableForSale
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  price {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+            images(first: 20) {
+              edges {
+                node {
+                  url
+                  altText
+                  width
+                  height
+                }
+              }
+            }
+            seo {
+              title
+              description
+            }
+            tags
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        handle
+      }
+    });
+
+    return reshapeProduct(body.data.product);
+  } catch (error) {
+    console.error('Failed to load product:', error);
+    return null;
+  }
+}
+
 function reshapeProducts(products: ShopifyProduct[]): Product[] {
-  return products.map(product => ({
-    ...product,
-    variants: product.variants.edges.map(edge => edge.node),
-    images: product.images.edges.map(edge => edge.node)
-  }));
+  return products.map(product => {
+    const reshapedProduct = reshapeProduct(product);
+    return reshapedProduct as Product;
+  }).filter((product): product is Product => product !== null);
 }

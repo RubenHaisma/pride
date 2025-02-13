@@ -1,155 +1,153 @@
-import { createStorefrontClient } from '@shopify/hydrogen-react';
+import { env } from '@/lib/env';
+import { isShopifyError } from './shopify/helpers';
+import { getProductsQuery } from './shopify/queries/product';
+import { Product, ShopifyProduct } from './shopify/types';
+import { reshapeProducts } from './shopify/utils';
 
-export interface ShopifyImage {
-  url: string;
-  altText: string;
-  width: number;
-  height: number;
+const domain = env.SHOPIFY_STORE_DOMAIN;
+const storefrontToken = env.SHOPIFY_STOREFRONT_TOKEN;
+const apiVersion = env.SHOPIFY_API_VERSION;
+
+if (!domain || !storefrontToken) {
+  throw new Error('Missing Shopify environment variables');
 }
 
-export interface ShopifyVariant {
-  id: string;
-  title: string;
-  price: string;
-  availableForSale: boolean;
-  selectedOptions: {
-    name: string;
-    value: string;
-  }[];
-}
+const endpoint = `https://${domain}/api/${apiVersion}/graphql.json`;
 
-export interface ShopifyProduct {
-  id: string;
-  title: string;
-  description: string;
-  price: string;
-  images: ShopifyImage[];
-  variants: ShopifyVariant[];
-  reviews: {
-    id: string;
-    rating: number;
-    title: string;
-    content: string;
-    author: string;
-    createdAt: string;
-  }[];
-}
-
-const client = createStorefrontClient({
-  storeDomain: process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!,
-  publicStorefrontToken: process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN!,
-  storefrontApiVersion: '2024-01',
-});
-
-const getStorefront = client.getStorefront;
-
-export async function getProducts(
-  sortKey = 'TITLE',
-  reverse = false,
-  query = ''
-): Promise<ShopifyProduct[]> {
+async function shopifyFetch<T>({
+  query,
+  variables,
+  headers,
+  cache = 'force-cache'
+}: {
+  query: string;
+  variables?: any;
+  headers?: HeadersInit;
+  cache?: RequestCache;
+}): Promise<{ status: number; body: T } | never> {
   try {
-    const { products } = await getStorefront().query({
-      query: `
-        query GetProducts($sortKey: ProductSortKeys!, $reverse: Boolean!, $query: String!) {
-          products(
-            first: 24,
-            sortKey: $sortKey,
-            reverse: $reverse,
-            query: $query
-          ) {
-            edges {
-              node {
-                id
-                title
-                description
-                priceRange {
-                  minVariantPrice {
-                    amount
-                    currencyCode
-                  }
-                }
-                images(first: 5) {
-                  edges {
-                    node {
-                      url
-                      altText
-                      width
-                      height
-                    }
-                  }
-                }
-                variants(first: 10) {
-                  edges {
-                    node {
-                      id
-                      title
-                      price {
-                        amount
-                        currencyCode
-                      }
-                      availableForSale
-                      selectedOptions {
-                        name
-                        value
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `,
-      variables: {
-        sortKey,
-        reverse,
-        query,
+    const result = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': storefrontToken as string,
+        ...headers
       },
+      body: JSON.stringify({
+        query,
+        variables
+      }),
+      cache,
+      next: { revalidate: 900 } // 15 minutes
     });
 
-    return products.edges.map(({ node }: any) => ({
-      id: node.id,
-      title: node.title,
-      description: node.description,
-      price: `€${parseFloat(node.priceRange.minVariantPrice.amount).toFixed(2)}`,
-      images: node.images.edges.map(({ node: image }: any) => ({
-        url: image.url,
-        altText: image.altText,
-        width: image.width,
-        height: image.height,
-      })),
-      variants: node.variants.edges.map(({ node: variant }: any) => ({
-        id: variant.id,
-        title: variant.title,
-        price: `€${parseFloat(variant.price.amount).toFixed(2)}`,
-        availableForSale: variant.availableForSale,
-        selectedOptions: variant.selectedOptions,
-      })),
-      reviews: [], // Reviews will be handled separately as Shopify doesn't provide this natively
-    }));
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
+    const body = await result.json();
+
+    if (body.errors) {
+      throw body.errors[0];
+    }
+
+    return {
+      status: result.status,
+      body
+    };
+  } catch (e) {
+    if (isShopifyError(e)) {
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      } else {
+        throw new Error('An unknown error occurred');
+      }
+    }
+
+    throw new Error('An error occurred while fetching from Shopify');
   }
 }
 
-export async function getProduct(id: string): Promise<ShopifyProduct> {
+export async function getProducts({
+  query = '',
+  reverse = false,
+  sortKey = 'BEST_SELLING'
+}: {
+  query?: string;
+  reverse?: boolean;
+  sortKey?: string;
+} = {}): Promise<Product[]> {
   try {
-    const { product } = await getStorefront().query({
+    const { body } = await shopifyFetch<{
+      data: {
+        products: {
+          edges: {
+            node: ShopifyProduct;
+          }[];
+        };
+      };
+    }>({
+      query: getProductsQuery,
+      variables: {
+        query,
+        reverse,
+        sortKey
+      }
+    });
+
+    const products = body.data.products.edges.map(({ node }) => node);
+    return reshapeProducts(products);
+  } catch (error) {
+    console.error('Failed to load products:', error);
+    return [];
+  }
+}
+
+export async function getProduct(handle: string): Promise<Product | null> {
+  try {
+    const { body } = await shopifyFetch<{
+      data: {
+        product: ShopifyProduct;
+      };
+    }>({
       query: `
-        query GetProduct($id: ID!) {
-          product(id: $id) {
+        query getProduct($handle: String!) {
+          product(handle: $handle) {
             id
+            handle
+            availableForSale
             title
             description
+            descriptionHtml
+            options {
+              id
+              name
+              values
+            }
             priceRange {
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
               minVariantPrice {
                 amount
                 currencyCode
               }
             }
-            images(first: 5) {
+            variants(first: 250) {
+              edges {
+                node {
+                  id
+                  title
+                  availableForSale
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  price {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+            images(first: 20) {
               edges {
                 node {
                   url
@@ -159,54 +157,24 @@ export async function getProduct(id: string): Promise<ShopifyProduct> {
                 }
               }
             }
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  title
-                  price {
-                    amount
-                    currencyCode
-                  }
-                  availableForSale
-                  selectedOptions {
-                    name
-                    value
-                  }
-                }
-              }
+            seo {
+              title
+              description
             }
+            tags
+            updatedAt
           }
         }
       `,
       variables: {
-        id,
-      },
+        handle
+      }
     });
 
-    return {
-      id: product.id,
-      title: product.title,
-      description: product.description,
-      price: `€${parseFloat(product.priceRange.minVariantPrice.amount).toFixed(2)}`,
-      images: product.images.edges.map(({ node: image }: any) => ({
-        url: image.url,
-        altText: image.altText,
-        width: image.width,
-        height: image.height,
-      })),
-      variants: product.variants.edges.map(({ node: variant }: any) => ({
-        id: variant.id,
-        title: variant.title,
-        price: `€${parseFloat(variant.price.amount).toFixed(2)}`,
-        availableForSale: variant.availableForSale,
-        selectedOptions: variant.selectedOptions,
-      })),
-      reviews: [], // Reviews will be handled separately
-    };
+    return reshapeProduct(body.data.product);
   } catch (error) {
-    console.error('Error fetching product:', error);
-    throw error;
+    console.error('Failed to load product:', error);
+    return null;
   }
 }
 
@@ -215,8 +183,18 @@ export async function createCheckout(
   quantity: number
 ): Promise<any> {
   try {
-    const { checkoutCreate } = await getStorefront().mutate({
-      mutation: `
+    const { body } = await shopifyFetch<{
+      data: {
+        checkoutCreate: {
+          checkoutUserErrors: any[];
+          checkout: {
+            id: string;
+            webUrl: string;
+          };
+        };
+      };
+    }>({
+      query: `
         mutation CreateCheckout($variantId: ID!, $quantity: Int!) {
           checkoutCreate(input: {
             lineItems: [{ variantId: $variantId, quantity: $quantity }]
@@ -237,11 +215,32 @@ export async function createCheckout(
         variantId,
         quantity,
       },
+      cache: 'no-store'
     });
 
-    return checkoutCreate;
+    return body.data.checkoutCreate;
   } catch (error) {
     console.error('Error creating checkout:', error);
     throw error;
   }
+}
+
+function reshapeProduct(product: ShopifyProduct | null): Product | null {
+  if (!product) {
+    return null;
+  }
+
+  return {
+    ...product,
+    variants: removeEdgesAndNodes(product.variants),
+    images: removeEdgesAndNodes(product.images)
+  };
+}
+
+function removeEdgesAndNodes<T>(connection: {
+  edges: Array<{
+    node: T;
+  }>;
+}): T[] {
+  return connection.edges.map(edge => edge.node);
 }

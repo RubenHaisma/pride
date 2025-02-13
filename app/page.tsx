@@ -6,18 +6,22 @@ import { ProductCard } from '@/components/product-card';
 import { getProducts } from '@/lib/shopify';
 import { Product } from '@/lib/shopify/types';
 import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadProducts() {
       try {
         const data = await getProducts();
         setProducts(data);
-      } catch (error) {
-        console.error('Error loading products:', error);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading products:', err);
+        setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -40,11 +44,25 @@ export default function HomePage() {
         </p>
       </motion.div>
 
-      <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </Grid>
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      ) : error ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-destructive">{error}</p>
+        </div>
+      ) : products.length === 0 ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-muted-foreground">No products available.</p>
+        </div>
+      ) : (
+        <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </Grid>
+      )}
     </div>
   );
 }

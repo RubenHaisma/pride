@@ -35,7 +35,7 @@ export default function ProductDetail({ params }: ProductDetailProps) {
       try {
         const data = await getProduct(params.id);
         setProduct(data);
-        if (data.variants.length > 0) {
+        if (data && data.variants.length > 0) {
           setSelectedVariant(data.variants[0].id);
         }
       } catch (error) {
