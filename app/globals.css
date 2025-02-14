@@ -51,6 +51,20 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-mono uppercase tracking-tight;
   }
+
+  /* Mobile-first text sizing */
+  h1 {
+    @apply text-3xl sm:text-4xl md:text-5xl;
+  }
+  h2 {
+    @apply text-2xl sm:text-3xl md:text-4xl;
+  }
+  h3 {
+    @apply text-xl sm:text-2xl md:text-3xl;
+  }
+  p {
+    @apply text-base sm:text-lg;
+  }
 }
 
 @layer components {
@@ -68,28 +82,30 @@
   
   .brutalist-card {
     @apply relative border-4 border-foreground bg-background transition-transform 
-    hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0_0_theme(colors.foreground)];
+    hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0_0_theme(colors.foreground)]
+    w-full;
   }
   
   .brutalist-button {
     @apply relative bg-foreground text-background border-4 border-foreground font-mono uppercase tracking-wider
     transition-transform hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0_0_theme(colors.foreground)]
-    active:translate-x-0 active:translate-y-0 active:shadow-none;
+    active:translate-x-0 active:translate-y-0 active:shadow-none
+    w-full sm:w-auto text-sm sm:text-base;
   }
   
   .brutalist-input {
     @apply bg-background border-4 border-foreground font-mono
-    focus:outline-none focus:ring-0 focus:border-primary;
+    focus:outline-none focus:ring-0 focus:border-primary
+    w-full;
   }
   
   .brutalist-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
   }
 
   .nav-item {
-    @apply relative font-mono uppercase tracking-wider text-lg;
+    @apply relative font-mono uppercase tracking-wider text-base sm:text-lg 
+    py-2 px-4 sm:py-0 sm:px-0 w-full sm:w-auto text-center;
   }
 
   .nav-item::after {
@@ -102,24 +118,85 @@
   }
 
   .footer-link {
-    @apply font-mono uppercase hover:text-primary transition-colors;
+    @apply font-mono uppercase hover:text-primary transition-colors
+    text-sm sm:text-base py-2;
+  }
+
+  /* Mobile-optimized containers */
+  .container {
+    @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+  }
+
+  /* Mobile-optimized sections */
+  .section-padding {
+    @apply py-8 sm:py-12 md:py-16 lg:py-20;
+  }
+
+  /* Mobile-optimized cards */
+  .mobile-card {
+    @apply p-4 sm:p-6 rounded-lg shadow-md;
+  }
+
+  /* Mobile-optimized buttons */
+  .mobile-button {
+    @apply px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base;
+  }
+
+  /* Mobile-optimized forms */
+  .form-group {
+    @apply space-y-2 mb-4;
+  }
+
+  /* Mobile-optimized grids */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
   }
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 16px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-background border-l-4 border-foreground;
+  @apply bg-background border-l-2 sm:border-l-4 border-foreground;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-foreground border-4 border-background;
+  @apply bg-foreground border-2 sm:border-4 border-background;
 }
 
 /* Selection */
 ::selection {
   @apply bg-primary text-white;
+}
+
+/* Mobile-optimized header */
+.mobile-header {
+  @apply fixed top-0 left-0 right-0 z-50 bg-background border-b-4 border-foreground;
+}
+
+/* Mobile menu */
+.mobile-menu {
+  @apply fixed inset-0 z-50 bg-background transform transition-transform duration-300;
+}
+
+/* Mobile navigation */
+.mobile-nav {
+  @apply flex flex-col items-center justify-center h-full space-y-6;
+}
+
+/* Touch-friendly buttons */
+.touch-button {
+  @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+}
+
+/* Responsive images */
+.responsive-image {
+  @apply w-full h-auto object-cover;
+}
+
+/* Mobile-optimized text */
+.mobile-text {
+  @apply text-base sm:text-lg leading-relaxed;
 }

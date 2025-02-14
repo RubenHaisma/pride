@@ -19,7 +19,7 @@ export function CartSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative">
+        <Button variant="outline" size="icon" className="touch-button relative">
           <ShoppingCart className="h-5 w-5" />
           {itemCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground w-5 h-5 rounded-full text-xs flex items-center justify-center">
@@ -28,7 +28,7 @@ export function CartSheet() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className="w-full sm:max-w-lg flex flex-col h-full">
         <SheetHeader>
           <SheetTitle>Shopping Cart</SheetTitle>
         </SheetHeader>
@@ -46,21 +46,21 @@ export function CartSheet() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="flex gap-4 items-center"
+                    className="flex gap-4 items-center p-4 mobile-card"
                   >
                     <img
                       src={item.image}
                       alt={item.title}
                       className="w-20 h-20 object-cover rounded-md"
                     />
-                    <div className="flex-1">
-                      <h3 className="font-medium">{item.title}</h3>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium truncate">{item.title}</h3>
                       <p className="text-sm text-muted-foreground">{item.price}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-8 w-8"
+                          className="touch-button h-8 w-8"
                           onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
                         >
                           <Minus className="h-4 w-4" />
@@ -69,7 +69,7 @@ export function CartSheet() {
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-8 w-8"
+                          className="touch-button h-8 w-8"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         >
                           <Plus className="h-4 w-4" />
@@ -79,6 +79,7 @@ export function CartSheet() {
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="touch-button"
                       onClick={() => removeItem(item.id)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -89,13 +90,13 @@ export function CartSheet() {
             )}
           </AnimatePresence>
         </div>
-        <SheetFooter>
-          <div className="w-full">
-            <div className="flex justify-between mb-4">
+        <SheetFooter className="border-t pt-4">
+          <div className="w-full space-y-4">
+            <div className="flex justify-between">
               <span className="font-medium">Total</span>
               <span className="font-bold">{total}</span>
             </div>
-            <Button className="w-full" disabled={items.length === 0}>
+            <Button className="w-full h-12 text-lg" disabled={items.length === 0}>
               Checkout
             </Button>
           </div>

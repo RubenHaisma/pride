@@ -54,10 +54,15 @@ export default function ProductDetail({ params }: ProductDetailProps) {
       return;
     }
 
+    if (!product || !product.images || product.images.length === 0) {
+      toast.error('Product data is not fully loaded');
+      return;
+    }
+
     addItem({
       id: product.id,
       title: product.title,
-      price: product.price,
+      price: `${product.priceRange.minVariantPrice.amount} ${product.priceRange.minVariantPrice.currencyCode}`,
       image: product.images[0].url,
       quantity: 1,
     });
@@ -91,17 +96,13 @@ export default function ProductDetail({ params }: ProductDetailProps) {
     );
   }
 
-  if (!product) {
+  if (!product || !product.images || product.images.length === 0) {
     return (
       <div className="min-h-screen pt-16 flex items-center justify-center">
-        <p>Product not found</p>
+        <p>Product not found or has no images</p>
       </div>
     );
   }
-
-  const averageRating = product.reviews.length
-    ? product.reviews.reduce((acc: number, review: any) => acc + review.rating, 0) / product.reviews.length
-    : 0;
 
   return (
     <div className="min-h-screen pt-16">
@@ -113,11 +114,13 @@ export default function ProductDetail({ params }: ProductDetailProps) {
             animate={{ opacity: 1 }}
             className="aspect-square overflow-hidden rounded-lg bg-muted"
           >
-            <img
-              src={product.images[selectedImage].url}
-              alt={product.images[selectedImage].altText}
-              className="w-full h-full object-cover"
-            />
+            {product.images[selectedImage] && (
+              <img
+                src={product.images[selectedImage].url}
+                alt={product.images[selectedImage].altText || product.title}
+                className="w-full h-full object-cover"
+              />
+            )}
           </motion.div>
           <div className="grid grid-cols-5 gap-4">
             {product.images.map((image: any, index: number) => (
@@ -130,7 +133,7 @@ export default function ProductDetail({ params }: ProductDetailProps) {
               >
                 <img
                   src={image.url}
-                  alt={image.altText}
+                  alt={image.altText || `${product.title} - Image ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
               </button>
@@ -154,22 +157,9 @@ export default function ProductDetail({ params }: ProductDetailProps) {
               transition={{ delay: 0.1 }}
               className="flex items-center gap-2 mt-2"
             >
-              <div className="flex items-center">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`h-5 w-5 ${
-                      star <= averageRating
-                        ? 'text-yellow-400 fill-current'
-                        : 'text-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-sm text-muted-foreground">
-                ({product.reviews.length} reviews)
+              <span className="text-2xl font-bold ml-auto">
+                {product.priceRange.minVariantPrice.amount} {product.priceRange.minVariantPrice.currencyCode}
               </span>
-              <span className="text-2xl font-bold ml-auto">{product.price}</span>
             </motion.div>
           </div>
 
@@ -197,7 +187,7 @@ export default function ProductDetail({ params }: ProductDetailProps) {
                       value={variant.id}
                       disabled={!variant.availableForSale}
                     >
-                      {variant.title} - {variant.price}
+                      {variant.title} - {variant.price.amount} {variant.price.currencyCode}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -230,52 +220,13 @@ export default function ProductDetail({ params }: ProductDetailProps) {
             </div>
           </motion.div>
 
-          <Tabs defaultValue="reviews" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+          <Tabs defaultValue="description" className="w-full">
+            <TabsList className="grid w-full grid-cols-1">
               <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="mt-4">
               <div className="prose max-w-none">
-                {product.description}
-              </div>
-            </TabsContent>
-            <TabsContent value="reviews" className="mt-4">
-              <div className="space-y-6">
-                {product.reviews.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-4">
-                    No reviews yet
-                  </p>
-                ) : (
-                  product.reviews.map((review: any) => (
-                    <div key={review.id} className="border-b pb-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex items-center">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${
-                                star <= review.rating
-                                  ? 'text-yellow-400 fill-current'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm font-medium">
-                          {review.author}
-                        </span>
-                        <span className="text-sm text-muted-foreground ml-auto">
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <h4 className="font-medium">{review.title}</h4>
-                      <p className="text-muted-foreground mt-1">
-                        {review.content}
-                      </p>
-                    </div>
-                  ))
-                )}
+                <div dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} />
               </div>
             </TabsContent>
           </Tabs>
