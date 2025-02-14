@@ -27,12 +27,20 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon.png', type: 'image/png' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '32x32' },
     ],
+    shortcut: ['/favicon.ico'],
     apple: [
-      { url: '/apple-icon.png', type: 'image/png' },
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/safari-pinned-tab.svg',
+        color: '#FF1B6B'
+      }
+    ]
   },
   manifest: '/manifest.json',
   openGraph: {
@@ -68,6 +76,16 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
+  appleWebApp: {
+    title: 'Pride 2025',
+    statusBarStyle: 'black-translucent',
+    startupImage: [
+      {
+        url: '/apple-splash-2048-2732.png',
+        media: '(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)'
+      }
+    ]
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -75,6 +93,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>

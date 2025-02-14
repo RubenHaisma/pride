@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Heart, Share2 } from 'lucide-react';
+import { ShoppingCart, Heart, Share2, Star, Package, Truck, Shield, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/cart-context';
 import { toast } from 'sonner';
@@ -18,6 +18,7 @@ import { getProduct, createCheckout } from '@/lib/shopify';
 import { Loader2 } from 'lucide-react';
 import { generateProductSchema } from '@/lib/schema';
 import Script from 'next/script';
+import Link from 'next/link';
 
 interface ProductDetailProps {
   params: {
@@ -133,130 +134,173 @@ export default function ProductDetail({ params }: ProductDetailProps) {
         }}
       />
       <div className="min-h-screen pt-16">
-        <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="aspect-square overflow-hidden rounded-lg bg-muted"
-            >
-              {product.images[selectedImage] && (
-                <img
-                  src={product.images[selectedImage].url}
-                  alt={product.images[selectedImage].altText || product.title}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </motion.div>
-            <div className="grid grid-cols-5 gap-4">
-              {product.images.map((image: any, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`aspect-square rounded-lg overflow-hidden bg-muted ${
-                    selectedImage === index ? 'ring-2 ring-primary' : ''
-                  }`}
-                >
-                  <img
-                    src={image.url}
-                    alt={image.altText || `${product.title} - Image ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <Button
+            variant="ghost"
+            className="mb-8"
+            asChild
+          >
+            <Link href="/shop">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Shop
+            </Link>
+          </Button>
 
-          {/* Product Info */}
-          <div className="space-y-6">
-            <div>
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-3xl font-bold"
-              >
-                {product.title}
-              </motion.h1>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="flex items-center gap-2 mt-2"
-              >
-                <span className="text-2xl font-bold ml-auto">
-                  {product.priceRange.minVariantPrice.amount} {product.priceRange.minVariantPrice.currencyCode}
-                </span>
-              </motion.div>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* Product Images */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
               className="space-y-4"
             >
-              <p className="text-muted-foreground">{product.description}</p>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Variant</label>
-                <Select
-                  value={selectedVariant}
-                  onValueChange={setSelectedVariant}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select variant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {product.variants.map((variant: any) => (
-                      <SelectItem
-                        key={variant.id}
-                        value={variant.id}
-                        disabled={!variant.availableForSale}
-                      >
-                        {variant.title} - {variant.price.amount} {variant.price.currencyCode}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="aspect-square brutalist-card overflow-hidden bg-secondary">
+                {product.images[selectedImage] && (
+                  <img
+                    src={product.images[selectedImage].url}
+                    alt={product.images[selectedImage].altText || product.title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
-
-              <div className="flex gap-4">
-                <Button
-                  size="lg"
-                  className="flex-1"
-                  onClick={handleAddToCart}
-                >
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Add to Cart
-                </Button>
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="flex-1"
-                  onClick={handleBuyNow}
-                >
-                  Buy Now
-                </Button>
-                <Button size="lg" variant="outline">
-                  <Heart className="h-5 w-5" />
-                </Button>
-                <Button size="lg" variant="outline" onClick={handleShare}>
-                  <Share2 className="h-5 w-5" />
-                </Button>
+              <div className="grid grid-cols-5 gap-4">
+                {product.images.map((image: any, index: number) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`aspect-square brutalist-card overflow-hidden bg-secondary ${
+                      selectedImage === index ? 'ring-4 ring-primary' : ''
+                    }`}
+                  >
+                    <img
+                      src={image.url}
+                      alt={image.altText || `${product.title} - Image ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
               </div>
             </motion.div>
 
-            <Tabs defaultValue="description" className="w-full">
-              <TabsList className="grid w-full grid-cols-1">
-                <TabsTrigger value="description">Description</TabsTrigger>
-              </TabsList>
-              <TabsContent value="description" className="mt-4">
-                <div className="prose max-w-none">
-                  <div dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} />
+            {/* Product Info */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-8"
+            >
+              <div className="space-y-4">
+                <h1 className="text-4xl font-black">{product.title}</h1>
+                <p className="text-3xl font-bold pride-gradient bg-clip-text text-transparent">
+                  {product.priceRange.minVariantPrice.amount} {product.priceRange.minVariantPrice.currencyCode}
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <p className="text-muted-foreground text-lg">{product.description}</p>
+
+                <div className="space-y-4">
+                  <label className="text-sm font-medium">Select Variant</label>
+                  <Select
+                    value={selectedVariant}
+                    onValueChange={setSelectedVariant}
+                  >
+                    <SelectTrigger className="w-full brutalist-input">
+                      <SelectValue placeholder="Select variant" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {product.variants.map((variant: any) => (
+                        <SelectItem
+                          key={variant.id}
+                          value={variant.id}
+                          disabled={!variant.availableForSale}
+                          className="font-mono"
+                        >
+                          {variant.title} - {variant.price.amount} {variant.price.currencyCode}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </TabsContent>
-            </Tabs>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    size="lg"
+                    className="brutalist-button h-14 text-lg"
+                    onClick={handleAddToCart}
+                  >
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                    Add to Cart
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="brutalist-button h-14 text-lg"
+                    onClick={handleBuyNow}
+                  >
+                    Buy Now
+                  </Button>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="brutalist-button flex-1"
+                  >
+                    <Heart className="h-5 w-5" />
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="brutalist-button flex-1"
+                    onClick={handleShare}
+                  >
+                    <Share2 className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 pt-4">
+                  <div className="text-center space-y-2">
+                    <Truck className="h-6 w-6 mx-auto text-primary" />
+                    <p className="text-sm font-mono">Fast Shipping</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <Package className="h-6 w-6 mx-auto text-primary" />
+                    <p className="text-sm font-mono">Secure Packaging</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <Shield className="h-6 w-6 mx-auto text-primary" />
+                    <p className="text-sm font-mono">Money-back Guarantee</p>
+                  </div>
+                </div>
+              </div>
+
+              <Tabs defaultValue="description" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="description">Description</TabsTrigger>
+                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                </TabsList>
+                <TabsContent value="description" className="mt-4">
+                  <div className="prose max-w-none">
+                    <div dangerouslySetInnerHTML={{ __html: product.descriptionHtml }} />
+                  </div>
+                </TabsContent>
+                <TabsContent value="reviews" className="mt-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-primary fill-current" />
+                      <Star className="h-5 w-5 text-primary fill-current" />
+                      <Star className="h-5 w-5 text-primary fill-current" />
+                      <Star className="h-5 w-5 text-primary fill-current" />
+                      <Star className="h-5 w-5 text-primary fill-current" />
+                      <span className="ml-2 text-sm text-muted-foreground">(Coming Soon)</span>
+                    </div>
+                    <p className="text-muted-foreground">
+                      Reviews will be available soon. Be the first to review this product!
+                    </p>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </motion.div>
           </div>
         </div>
       </div>

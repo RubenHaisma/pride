@@ -8,6 +8,7 @@ import { Product } from '@/lib/shopify/types';
 import { useEffect, useState } from 'react';
 import { ShoppingBag, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CountdownTimer } from '@/components/countdown-timer';
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -45,6 +46,10 @@ export default function HomePage() {
             <p className="text-2xl md:text-3xl font-mono">
               AMSTERDAM&apos;S BOLDEST CELEBRATION OF LOVE
             </p>
+
+            <div className="py-12">
+              <CountdownTimer />
+            </div>
 
             <div className="flex flex-wrap gap-6 justify-center pt-8">
               <Button
