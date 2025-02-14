@@ -3,9 +3,9 @@ import { getProductsQuery } from './queries/product';
 import { Product, ShopifyProduct } from './types';
 import { removeEdgesAndNodes, reshapeProduct } from './utils';
 
-const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-const storefrontToken = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN as string;
-const apiVersion = process.env.NEXT_PUBLIC_SHOPIFY_GRAPHQL_API_VERSION || '2024-01';
+const domain = env.SHOPIFY_STORE_DOMAIN;
+const storefrontToken = env.SHOPIFY_STOREFRONT_TOKEN!;
+const apiVersion = env.SHOPIFY_API_VERSION;
 
 if (!domain || !storefrontToken) {
   throw new Error('Missing Shopify environment variables');
@@ -80,7 +80,8 @@ export async function getProducts({
         query,
         reverse,
         sortKey
-      }
+      },
+      cache: 'no-store' // Disable caching to always get fresh data
     });
 
     const products = body.data.products.edges.map(({ node }) => node);
