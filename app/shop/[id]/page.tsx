@@ -39,7 +39,9 @@ export default function ProductDetail({ params }: ProductDetailProps) {
         const data = await getProduct(params.id);
         setProduct(data);
         if (data && data.variants.length > 0) {
-          setSelectedVariant(data.variants[0].id);
+          // Remove the Shopify prefix from the variant ID
+          const variantId = data.variants[0].id.replace('gid://shopify/ProductVariant/', '');
+          setSelectedVariant(variantId);
         }
       } catch (error) {
         console.error('Error loading product:', error);
@@ -63,7 +65,7 @@ export default function ProductDetail({ params }: ProductDetailProps) {
     }
 
     addItem({
-      id: product.id,
+      id: selectedVariant,
       title: product.title,
       price: `${product.priceRange.minVariantPrice.amount} ${product.priceRange.minVariantPrice.currencyCode}`,
       image: product.images[0].url,
@@ -79,7 +81,11 @@ export default function ProductDetail({ params }: ProductDetailProps) {
     }
 
     try {
-      const checkout = await createCheckout(selectedVariant, 1);
+      const checkout = await createCheckout([{
+        variantId: selectedVariant,
+        quantity: 1
+      }]);
+      
       if (checkout.checkoutUserErrors.length > 0) {
         toast.error(checkout.checkoutUserErrors[0].message);
         return;
@@ -207,16 +213,20 @@ export default function ProductDetail({ params }: ProductDetailProps) {
                       <SelectValue placeholder="Select variant" />
                     </SelectTrigger>
                     <SelectContent>
-                      {product.variants.map((variant: any) => (
-                        <SelectItem
-                          key={variant.id}
-                          value={variant.id}
-                          disabled={!variant.availableForSale}
-                          className="font-mono"
-                        >
-                          {variant.title} - {variant.price.amount} {variant.price.currencyCode}
-                        </SelectItem>
-                      ))}
+                      {product.variants.map((variant: any) => {
+                        // Remove the Shopify prefix from the variant ID
+                        const variantId = variant.id.replace('gid://shopify/ProductVariant/', '');
+                        return (
+                          <SelectItem
+                            key={variantId}
+                            value={variantId}
+                            disabled={!variant.availableForSale}
+                            className="font-mono"
+                          >
+                            {variant.title} - {variant.price.amount} {variant.price.currencyCode}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                 </div>
@@ -237,24 +247,6 @@ export default function ProductDetail({ params }: ProductDetailProps) {
                     onClick={handleBuyNow}
                   >
                     Buy Now
-                  </Button>
-                </div>
-
-                <div className="flex gap-4">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="brutalist-button flex-1"
-                  >
-                    <Heart className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="brutalist-button flex-1"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="h-5 w-5" />
                   </Button>
                 </div>
 

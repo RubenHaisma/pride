@@ -21,8 +21,11 @@ export function ProductCard({ product }: { product: Product }) {
     e.preventDefault();
     e.stopPropagation();
     
+    // Get the first variant ID and remove the Shopify prefix
+    const variantId = product.variants[0].id.replace('gid://shopify/ProductVariant/', '');
+    
     addItem({
-      id: product.id,
+      id: variantId,
       title: product.title,
       price: `${product.priceRange.minVariantPrice.amount} ${product.priceRange.minVariantPrice.currencyCode}`,
       image: product.images[0].url,

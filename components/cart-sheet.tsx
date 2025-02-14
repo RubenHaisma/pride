@@ -28,10 +28,13 @@ export function CartSheet() {
 
     setIsCheckingOut(true);
     try {
-      // For now, we'll just use the first item in the cart
-      // In a production environment, you'd want to handle multiple items
-      const item = items[0];
-      const checkout = await createCheckout(item.id, item.quantity);
+      // Convert cart items to Shopify line items format
+      const lineItems = items.map(item => ({
+        variantId: item.id,
+        quantity: item.quantity
+      }));
+
+      const checkout = await createCheckout(lineItems);
 
       if (checkout.checkoutUserErrors && checkout.checkoutUserErrors.length > 0) {
         throw new Error(checkout.checkoutUserErrors[0].message);

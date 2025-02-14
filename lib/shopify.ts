@@ -2,7 +2,7 @@ import { env } from '@/lib/env';
 import { isShopifyError } from './shopify/helpers';
 import { getProductsQuery } from './shopify/queries/product';
 import { Product, ShopifyProduct } from './shopify/types';
-import { reshapeProduct } from './shopify/utils';
+import { reshapeProducts } from './shopify/utils';
 
 const domain = env.SHOPIFY_STORE_DOMAIN;
 const storefrontToken = env.SHOPIFY_STOREFRONT_TOKEN;
@@ -37,34 +37,35 @@ async function shopifyFetch<T>({
         query,
         variables
       }),
-      cache
+      cache,
+      next: { revalidate: 900 } // 15 minutes
     });
 
     const body = await result.json();
 
     if (body.errors) {
-      throw new Error(body.errors[0].message);
-    }
-
-    if (!body.data) {
-      throw new Error('No data returned from Shopify');
+      throw body.errors[0];
     }
 
     return {
       status: result.status,
       body
     };
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
+  } catch (e) {
+    if (isShopifyError(e)) {
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      } else {
+        throw new Error('An unknown error occurred');
+      }
     }
+
     throw new Error('An error occurred while fetching from Shopify');
   }
 }
 
 export async function createCheckout(
-  variantId: string,
-  quantity: number
+  lineItems: { variantId: string; quantity: number }[]
 ): Promise<any> {
   try {
     const { body } = await shopifyFetch<{
@@ -79,8 +80,10 @@ export async function createCheckout(
       };
     }>({
       query: `
-        mutation checkoutCreate($input: CheckoutCreateInput!) {
-          checkoutCreate(input: $input) {
+        mutation CreateCheckout($lineItems: [CheckoutLineItemInput!]!) {
+          checkoutCreate(input: {
+            lineItems: $lineItems
+          }) {
             checkoutUserErrors {
               code
               field
@@ -94,12 +97,10 @@ export async function createCheckout(
         }
       `,
       variables: {
-        input: {
-          lineItems: [{ 
-            variantId: `gid://shopify/ProductVariant/${variantId}`,
-            quantity 
-          }]
-        }
+        lineItems: lineItems.map(item => ({
+          variantId: `gid://shopify/ProductVariant/${item.variantId}`,
+          quantity: item.quantity
+        }))
       },
       cache: 'no-store'
     });
@@ -225,9 +226,22 @@ export async function getProduct(handle: string): Promise<Product | null> {
   }
 }
 
-function reshapeProducts(products: ShopifyProduct[]): Product[] {
-  return products.map(product => {
-    const reshapedProduct = reshapeProduct(product);
-    return reshapedProduct as Product;
-  }).filter((product): product is Product => product !== null);
+function reshapeProduct(product: ShopifyProduct | null): Product | null {
+  if (!product) {
+    return null;
+  }
+
+  return {
+    ...product,
+    variants: removeEdgesAndNodes(product.variants),
+    images: removeEdgesAndNodes(product.images)
+  };
+}
+
+function removeEdgesAndNodes<T>(connection: {
+  edges: Array<{
+    node: T;
+  }>;
+}): T[] {
+  return connection.edges.map(edge => edge.node);
 }
