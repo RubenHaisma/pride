@@ -38,7 +38,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto text-center space-y-8"
           >
-            <h1 className="text-8xl md:text-[12rem] leading-none font-black">
+            <h1 className="text-8xl md:text-[12rem] leading-none font-black mt-16">
               PRIDE
               <span className="block pride-gradient text-transparent bg-clip-text">2025</span>
             </h1>
