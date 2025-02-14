@@ -36,8 +36,7 @@ async function shopifyFetch<T>({
         query,
         variables
       }),
-      cache,
-      next: { revalidate: 900 } // 15 minutes
+      cache
     });
 
     const body = await result.json();
@@ -52,6 +51,59 @@ async function shopifyFetch<T>({
     };
   } catch (error) {
     console.error('Shopify fetch error:', error);
+    throw error;
+  }
+}
+
+export async function createCheckout(
+  variantId: string,
+  quantity: number
+): Promise<any> {
+  try {
+    const { body } = await shopifyFetch<{
+      data: {
+        checkoutCreate: {
+          checkoutUserErrors: any[];
+          checkout: {
+            id: string;
+            webUrl: string;
+          };
+        };
+      };
+    }>({
+      query: `
+        mutation checkoutCreate($input: CheckoutCreateInput!) {
+          checkoutCreate(input: $input) {
+            checkoutUserErrors {
+              code
+              field
+              message
+            }
+            checkout {
+              id
+              webUrl
+            }
+          }
+        }
+      `,
+      variables: {
+        input: {
+          lineItems: [{ 
+            variantId: `gid://shopify/ProductVariant/${variantId}`,
+            quantity 
+          }]
+        }
+      },
+      cache: 'no-store'
+    });
+
+    if (!body.data) {
+      throw new Error('No data returned from Shopify');
+    }
+
+    return body.data.checkoutCreate;
+  } catch (error) {
+    console.error('Error creating checkout:', error);
     throw error;
   }
 }
@@ -80,8 +132,7 @@ export async function getProducts({
         query,
         reverse,
         sortKey
-      },
-      cache: 'no-store' // Disable caching to always get fresh data
+      }
     });
 
     const products = body.data.products.edges.map(({ node }) => node);

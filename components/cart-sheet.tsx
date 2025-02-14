@@ -21,16 +21,17 @@ export function CartSheet() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const handleCheckout = async () => {
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      toast.error('Your cart is empty');
+      return;
+    }
 
     setIsCheckingOut(true);
     try {
-      // Get the first variant ID and quantity
-      // In a real app, you'd want to handle multiple items in the cart
-      const variantId = items[0].id;
-      const quantity = items[0].quantity;
-
-      const checkout = await createCheckout(variantId, quantity);
+      // For now, we'll just use the first item in the cart
+      // In a production environment, you'd want to handle multiple items
+      const item = items[0];
+      const checkout = await createCheckout(item.id, item.quantity);
 
       if (checkout.checkoutUserErrors && checkout.checkoutUserErrors.length > 0) {
         throw new Error(checkout.checkoutUserErrors[0].message);
