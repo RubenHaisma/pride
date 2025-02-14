@@ -29,21 +29,21 @@ export function Header() {
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
-      className="fixed left-0 right-0 top-0 z-50 border-b bg-background/80 backdrop-blur-md"
+      className="fixed left-0 right-0 top-0 z-50 border-b-4 border-foreground bg-background"
     >
-      <div className="mx-auto max-w-screen-2xl px-6 md:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-6">
+      <div className="container px-6 md:px-8">
+        <div className="flex h-20 items-center justify-between">
+          <div className="flex items-center gap-12">
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
-            <Link href="/" className="text-2xl font-bold pride-text">
-              Pride 2025
+            <Link href="/" className="text-3xl font-black pride-gradient bg-clip-text text-transparent">
+              PRIDE 2025
             </Link>
-            <nav className="hidden items-center gap-6 md:flex">
-              <Link href="/shop" className="text-sm font-medium hover:pride-text transition-all">Shop</Link>
-              <Link href="/about" className="text-sm font-medium hover:pride-text transition-all">About</Link>
-              <Link href="/contact" className="text-sm font-medium hover:pride-text transition-all">Contact</Link>
+            <nav className="hidden items-center gap-12 md:flex">
+              <Link href="/shop" className="nav-item">SHOP</Link>
+              <Link href="/about" className="nav-item">ABOUT</Link>
+              <Link href="/contact" className="nav-item">CONTACT</Link>
             </nav>
           </div>
 
@@ -61,12 +61,12 @@ export function Header() {
           open: { height: "auto", opacity: 1 },
           closed: { height: 0, opacity: 0 }
         }}
-        className="overflow-hidden border-t bg-background/95 backdrop-blur-md md:hidden"
+        className="overflow-hidden border-t-4 border-foreground bg-background md:hidden"
       >
         <div className="space-y-1 p-4">
-          <Link href="/shop" className="block rounded-lg px-4 py-2 text-base font-medium hover:pride-text transition-all">Shop</Link>
-          <Link href="/about" className="block rounded-lg px-4 py-2 text-base font-medium hover:pride-text transition-all">About</Link>
-          <Link href="/contact" className="block rounded-lg px-4 py-2 text-base font-medium hover:pride-text transition-all">Contact</Link>
+          <Link href="/shop" className="block p-4 nav-item">SHOP</Link>
+          <Link href="/about" className="block p-4 nav-item">ABOUT</Link>
+          <Link href="/contact" className="block p-4 nav-item">CONTACT</Link>
         </div>
       </motion.div>
     </motion.header>
