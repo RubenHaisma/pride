@@ -23,24 +23,16 @@ export default function ShopPage() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const data = await getProducts({
-          sortKey: sortBy.toUpperCase(),
-          reverse: false,
-          query: searchQuery
-        });
+        const data = await getProducts();
         setProducts(data);
-        setError(null);
       } catch (err) {
         console.error('Error loading products:', err);
-        setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);
       }
     }
-
     loadProducts();
-  }, [searchQuery, sortBy]);
-
+  }, []);
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
   };

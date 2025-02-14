@@ -27,7 +27,8 @@ export function Footer() {
           <div className="space-y-4">
             <h4 className="font-mono text-lg mb-4">ABOUT</h4>
             <div className="flex flex-col space-y-2">
-              <Link href="/about" className="footer-link">OUR STORY</Link>
+              <Link href="/about#our-story" className="footer-link">OUR STORY</Link>
+              <Link href="/about#mission" className="footer-link">OUR MISSION</Link>
               <Link href="/about#impact" className="footer-link">OUR IMPACT</Link>
               <Link href="/contact" className="footer-link">CONTACT</Link>
             </div>
