@@ -192,9 +192,7 @@ export default function PrivacyPage() {
                   If you have any questions about this Privacy Policy or our data practices, please contact us at:
                 </p>
                 <ul className="list-none space-y-2">
-                  <li>Email: privacy@pride2025.amsterdam</li>
-                  <li>Address: [Your Physical Address]</li>
-                  <li>Phone: [Your Phone Number]</li>
+                  <li>Email: privacy@pride2025.nl</li>
                 </ul>
               </div>
             </motion.div>
