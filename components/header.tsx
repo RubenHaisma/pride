@@ -46,6 +46,7 @@ export function Header() {
               PRIDE 2025
             </Link>
             <nav className="hidden md:flex items-center gap-8 lg:gap-12">
+              <Link href="/events" className="nav-item">EVENTS</Link>
               <Link href="/shop" className="nav-item">SHOP</Link>
               <Link href="/about" className="nav-item">ABOUT</Link>
               <Link href="/contact" className="nav-item">CONTACT</Link>
@@ -80,6 +81,13 @@ export function Header() {
       >
         <div className="container py-8">
           <nav className="mobile-nav">
+            <Link 
+              href="/events" 
+              className="nav-item text-2xl" 
+              onClick={() => setIsOpen(false)}
+            >
+              EVENTS
+            </Link>
             <Link 
               href="/shop" 
               className="nav-item text-2xl" 
