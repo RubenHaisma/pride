@@ -15,3 +15,32 @@ export interface CartContextType {
   total: string;
   itemCount: number;
 }
+
+export interface PrideEvent {
+  id: string;
+  title: string;
+  description: string;
+  city: string;
+  venue: string;
+  startDate: string;
+  endDate: string;
+  time: string;
+  image: string;
+  ticketUrl?: string;
+  price?: string;
+  organizer: string;
+  website: string;
+  category: 'parade' | 'party' | 'cultural' | 'community' | 'workshop';
+  tags: string[];
+}
+
+export type City = {
+  name: string;
+  slug: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  description: string;
+  image: string;
+};
