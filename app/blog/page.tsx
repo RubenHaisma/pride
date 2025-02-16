@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
 import { BlogPost } from '@/lib/types';
 
@@ -110,7 +111,7 @@ export default function BlogPage() {
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.map((post) => (
+            {blogPosts.map((post, index) => (
               <motion.article
                 key={post.slug}
                 initial={{ opacity: 0, y: 20 }}
@@ -120,11 +121,16 @@ export default function BlogPage() {
               >
                 <Link href={`/blog/${post.slug}`}>
                   <div className="blog-card">
-                    <div className="aspect-video overflow-hidden bg-secondary">
-                      <img
+                    <div className="aspect-video overflow-hidden bg-secondary relative">
+                      <Image
                         src={post.image}
                         alt={post.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        priority={index < 3} // Prioritize loading first 3 images
+                        loading={index < 3 ? 'eager' : 'lazy'}
+                        quality={85}
                       />
                     </div>
                     
