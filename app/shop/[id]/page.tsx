@@ -97,22 +97,22 @@ export default function ProductDetail({ params }: ProductDetailProps) {
     }
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: product.title,
-          text: product.description,
-          url: window.location.href,
-        });
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied to clipboard');
-    }
-  };
+  // const handleShare = async () => {
+  //   if (navigator.share) {
+  //     try {
+  //       await navigator.share({
+  //         title: product.title,
+  //         text: product.description,
+  //         url: window.location.href,
+  //       });
+  //     } catch (error) {
+  //       console.error('Error sharing:', error);
+  //     }
+  //   } else {
+  //     navigator.clipboard.writeText(window.location.href);
+  //     toast.success('Link copied to clipboard');
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -201,8 +201,6 @@ export default function ProductDetail({ params }: ProductDetailProps) {
               </div>
 
               <div className="space-y-6">
-                <p className="text-muted-foreground text-lg">{product.description}</p>
-
                 <div className="space-y-4">
                   <label className="text-sm font-medium">Select Variant</label>
                   <Select
