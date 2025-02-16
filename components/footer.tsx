@@ -49,7 +49,7 @@ export function Footer() {
             MADE WITH <Heart className="h-4 w-4 text-primary fill-current" /> IN AMSTERDAM
           </p>
           <p className="flex items-center justify-center gap-2 font-mono text-sm mt-2">
-            Website by <a href="https://incubit.nl" className="text-primary">incubit.nl</a>
+            Website by <a href="https://incubit.io" className="text-primary">incubit.io</a>
           </p>
         </div>
       </div>
