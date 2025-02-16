@@ -64,13 +64,6 @@ export function ProductCard({ product }: { product: Product }) {
                 <ShoppingBag className="mr-2 h-5 w-5" />
                 Add to Cart
               </Button>
-              <Button
-                size="lg"
-                variant="secondary"
-                className="brutalist-button"
-              >
-                <Heart className="h-5 w-5" />
-              </Button>
             </div>
           </div>
         </div>
