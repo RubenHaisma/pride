@@ -44,3 +44,20 @@ export type City = {
   description: string;
   image: string;
 };
+
+export interface BlogPost {
+  slug: string;
+  title: string;
+  description: string;
+  content: string;
+  image: string;
+  author: {
+    name: string;
+    role: string;
+    image: string;
+  };
+  publishedAt: string;
+  category: 'guide' | 'news' | 'community' | 'history' | 'culture';
+  tags: string[];
+  readingTime: number;
+}

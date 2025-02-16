@@ -50,6 +50,7 @@ export function Header() {
               <Link href="/shop" className="nav-item">SHOP</Link>
               <Link href="/about" className="nav-item">ABOUT</Link>
               <Link href="/contact" className="nav-item">CONTACT</Link>
+              <Link href="/blog" className="nav-item">BLOG</Link>
             </nav>
           </div>
 
@@ -108,6 +109,13 @@ export function Header() {
               onClick={() => setIsOpen(false)}
             >
               CONTACT
+            </Link>
+            <Link 
+              href="/blog" 
+              className="nav-item text-2xl" 
+              onClick={() => setIsOpen(false)}
+            >
+              BLOG
             </Link>
           </nav>
         </div>
