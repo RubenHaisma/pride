@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Calendar, Clock, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { BlogPost } from '@/lib/types';
 
 const blogPosts: BlogPost[] = [
@@ -120,7 +119,7 @@ export default function BlogPage() {
                 className="group"
               >
                 <Link href={`/blog/${post.slug}`}>
-                  <div className="brutalist-card overflow-hidden">
+                  <div className="blog-card">
                     <div className="aspect-video overflow-hidden bg-secondary">
                       <img
                         src={post.image}
@@ -130,22 +129,37 @@ export default function BlogPage() {
                     </div>
                     
                     <div className="p-6 space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          <span>{post.publishedAt}</span>
-                          <span>•</span>
-                          <Clock className="h-4 w-4" />
-                          <span>{post.readingTime} min read</span>
+                      <div className="space-y-4">
+                        <div className="blog-meta">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            <span>{post.publishedAt}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            <span>{post.readingTime} min read</span>
+                          </div>
                         </div>
-                        <h2 className="text-xl font-bold line-clamp-2">{post.title}</h2>
-                        <p className="text-muted-foreground line-clamp-2">{post.description}</p>
+                        
+                        <div className="space-y-2">
+                          <h2 className="text-xl font-bold line-clamp-2">{post.title}</h2>
+                          <p className="text-muted-foreground line-clamp-2">{post.description}</p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.map((tag) => (
+                            <span key={tag} className="blog-tag">{tag}</span>
+                          ))}
+                        </div>
                       </div>
 
-                      <Button variant="ghost" className="group/button w-full justify-between">
-                        Read More
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover/button:translate-x-1" />
-                      </Button>
+                      <div className="flex items-center justify-between pt-4 border-t border-border">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{post.author.name}</span>
+                          <span className="text-sm text-muted-foreground">{post.author.role}</span>
+                        </div>
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </div>
                     </div>
                   </div>
                 </Link>
